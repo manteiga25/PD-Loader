@@ -137,7 +137,7 @@ ConfigOptionBase* screenResolutionArray[] = {
 };
 
 BooleanOption* InternalResolutionCheckbox = new BooleanOption(L"r.enable", RESOLUTION_SECTION, CONFIG_FILE, L"Enable", L"Enable or disable custom internal resolution.", false, false);
-ResolutionOption* InternalResolutionOption = new ResolutionOption(L"r.width", L"r.height", RESOLUTION_SECTION, CONFIG_FILE, L"Resolution:", L"Sets the internal resolution.", resolution(1280, 720), std::vector<resolution>({ resolution(640,480), resolution(800,600), resolution(960,720), resolution(1280,720), resolution(1600,900), resolution(1920,1080), resolution(2560,1440), resolution(3200,1800), resolution(3840,2160), resolution(5120,2880), resolution(6400,3600), resolution(7680,4320) }), true);
+ResolutionOption* InternalResolutionOption = new ResolutionOption(L"r.width", L"r.height", RESOLUTION_SECTION, CONFIG_FILE, L"Resolution:", L"Sets the internal resolution (instead of 1280x720).", resolution(1920, 1080), std::vector<resolution>({ resolution(1,1), resolution(320,200), resolution(320,240), resolution(640,480), resolution(800,600), resolution(960,720), resolution(1360,768), resolution(1366,768), resolution(1600,900), resolution(1920,1080), resolution(2560,1440), resolution(3200,1800), resolution(3840,2160), resolution(5120,2880), resolution(6400,3600), resolution(7680,4320) }), true);
 
 ConfigOptionBase* internalResolutionArray[] = {
 	InternalResolutionCheckbox,
@@ -170,6 +170,7 @@ ConfigOptionBase* optionsArray[] = {
 	new DropdownOption(L"status_icons", PATCHES_SECTION, CONFIG_FILE, L"Status Icons:", L"Set the state of card reader and network status icons.", 3, std::vector<LPCWSTR>({ L"Default", L"Hidden", L"Error", L"OK", L"Partial OK" })),
 	
 	new NumericOption(L"FPS.Limit", GRAPHICS_SECTION, CONFIG_FILE, L"FPS Limit:", L"Allows you to set a frame rate cap. Set to -1 to unlock the frame rate.", 60, -1, INT_MAX),
+	new BooleanOption(L"FPS.Limit.LightMode", GRAPHICS_SECTION, CONFIG_FILE, L"Use Lightweight Limiter", L"Makes the FPS limiter use less CPU.\nMay have less consistent performance.", true, false),
 
 	new StringOption(L"command_line", LAUNCHER_SECTION, CONFIG_FILE, L"Command Line:", L"Allows setting command line parameters for the game when using the launcher.\nDisabling the launcher will bypass this.", L"", false),
 };
@@ -231,6 +232,13 @@ bool IsLineInFile(LPCSTR searchLine, LPCWSTR fileName)
 
 	std::string line;
 
+	// check for BOM
+	std::getline(fileStream, line);
+	if (line.size() >= 3 & line.rfind("\xEF\xBB\xBF", 0) == 0)
+		fileStream.seekg(3);
+	else
+		fileStream.seekg(0);
+
 	while (std::getline(fileStream, line))
 	{
 		if (line.compare(searchLine) == 0)
@@ -258,7 +266,17 @@ void PrependFile(LPCSTR newStr, LPCWSTR fileName)
 	fileStream.seekg(0, std::ios::end);
 	origStr.reserve(fileStream.tellg());
 	fileStream.seekg(0, std::ios::beg);
+
+	// check for BOM
+	std::string BOMcheckLine;
+	std::getline(fileStream, BOMcheckLine);
+	if (BOMcheckLine.size() >= 3 & BOMcheckLine.rfind("\xEF\xBB\xBF", 0) == 0)
+		fileStream.seekg(3);
+	else
+		fileStream.seekg(0);
+
 	origStr.assign((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+
 
 	std::string outStr = newStr;
 	outStr += origStr;
