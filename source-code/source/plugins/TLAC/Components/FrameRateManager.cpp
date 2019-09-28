@@ -10,6 +10,12 @@ namespace TLAC::Components
 {
 	FrameRateManager::FrameRateManager()
 	{
+		std::string utf8path = TLAC::framework::GetModuleDirectory() + "/config.ini";
+		WCHAR utf16buf[256];
+		MultiByteToWideChar(CP_UTF8, 0, utf8path.c_str(), -1, utf16buf, 256);
+
+		float nMotionRate = GetPrivateProfileIntW(L"graphics", L"frm.motion.rate", 300, utf16buf);
+		motionSpeedMultiplier = nMotionRate / 60.0f;
 	}
 
 	FrameRateManager::~FrameRateManager()
@@ -37,6 +43,14 @@ namespace TLAC::Components
 
 		// fix auto speed for high fps
 		InjectCode((void*)0x140192d7b, { 0x90, 0x90, 0x90 });
+
+		// fix frame speed slider initial value (should ignore effect of auto speed)
+		InjectCode((void*)0x140338f2f, { 0xf3, 0x0f, 0x10, 0x0d, 0x61, 0x18, 0xba, 0x00 }); // MOVSS XMM1, dword ptr [0x140eda798] (raw framespeed)
+		InjectCode((void*)0x140338f37, { 0x48, 0x8b, 0x8f, 0x80, 0x01, 0x00, 0x00 });       // MOV RCX, qword ptr [0x180 + RDI]
+
+		InjectCode((void*)0x140338ebe, { 0xf3, 0x0f, 0x10, 0x0d, 0xd2, 0x18, 0xba, 0x00 }); // MOVSS XMM1, dword ptr [0x140eda798] (raw framespeed)
+		InjectCode((void*)0x140338ec6, { 0x48, 0x8b, 0x05, 0xfb, 0xb1, 0xe5, 0x00 });       // MOV RAX, qword ptr [0x1411940c8]
+		InjectCode((void*)0x140338ecd, { 0x48, 0x8b, 0x88, 0x80, 0x01, 0x00, 0x00 });       // MOV RCX, qword ptr [0x180 + RAX]
 
 
 		// fix AETs
@@ -94,10 +108,10 @@ namespace TLAC::Components
 		// this alterante way makes physics slowmo, but overall may be better if that's fixed
 
 		//// target framerate
-		//*(float*)0x140eda6cc = 60.0f;
+		//*(float*)AUTO_FRAMESPEED_TARGET_FRAMERATE_ADDRESS = 60.0f;
 
 		//// enable dynamic framerate
-		//*(bool*)0x140eda79c = true;
+		//*(bool*)USE_AUTO_FRAMESPEED_ADDRESS = true;
 
 		//*pvFrameRate = 60.0f;
 
@@ -134,10 +148,10 @@ namespace TLAC::Components
 		if (*(SubGameState*)CURRENT_GAME_SUB_STATE_ADDRESS == SUB_GAME_MAIN || *(SubGameState*)CURRENT_GAME_SUB_STATE_ADDRESS == SUB_DEMO)
 		{
 			// enable dynamic framerate
-			*(bool*)0x140eda79c = true;
+			*(bool*)USE_AUTO_FRAMESPEED_ADDRESS = true;
 
 			// target framerate
-			*(float*)0x140eda6cc = *pvFrameRate;
+			*(float*)AUTO_FRAMESPEED_TARGET_FRAMERATE_ADDRESS = *pvFrameRate;
 
 			// trying to fix meltdown's water
 			//if ((uint64_t*)0x1411943f8 != nullptr)
@@ -147,10 +161,10 @@ namespace TLAC::Components
 		else
 		{
 			// enable dynamic framerate
-			*(bool*)0x140eda79c = true;
+			*(bool*)USE_AUTO_FRAMESPEED_ADDRESS = true;
 
 			// target framerate
-			*(float*)0x140eda6cc = 60.0f;
+			*(float*)AUTO_FRAMESPEED_TARGET_FRAMERATE_ADDRESS = 60.0f;
 		}
 	}
 

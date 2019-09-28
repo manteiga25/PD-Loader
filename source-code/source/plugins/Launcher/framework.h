@@ -46,12 +46,16 @@ LPCWSTR COMPONENTS_FILE = COMPONENTS_FILE_STRING.c_str();
 wstring PLAYERDATA_FILE_STRING = PLUGINS_DIR + L"\\playerdata.ini";
 LPCWSTR PLAYERDATA_FILE = PLAYERDATA_FILE_STRING.c_str();
 
+wstring KEYCONFIG_FILE_STRING = PLUGINS_DIR + L"\\keyconfig.ini";
+LPCWSTR KEYCONFIG_FILE = KEYCONFIG_FILE_STRING.c_str();
+
 LPCWSTR PATCHES_SECTION = L"patches";
 LPCWSTR GRAPHICS_SECTION = L"graphics";
 LPCWSTR RESOLUTION_SECTION = L"resolution";
 LPCWSTR LAUNCHER_SECTION = L"launcher";
 LPCWSTR COMPONENTS_SECTION = L"components";
 LPCWSTR PLAYERDATA_SECTION = L"playerdata";
+LPCWSTR KEYCONFIG_SECTION = L"keyconfig";
 
 int nSkipLauncher = GetPrivateProfileIntW(L"launcher", L"skip", FALSE, CONFIG_FILE);
 
@@ -145,32 +149,42 @@ ConfigOptionBase* internalResolutionArray[] = {
 };
 
 ConfigOptionBase* optionsArray[] = {
-	new BooleanOption(L"cursor", PATCHES_SECTION, CONFIG_FILE, L"Cursor", L"Enable or disable the mouse cursor.", true, false),
-
-	new BooleanOption(L"TAA", GRAPHICS_SECTION, CONFIG_FILE, L"TAA", L"Temporal Anti-Aliasing", true, false),
-	new BooleanOption(L"MLAA", GRAPHICS_SECTION, CONFIG_FILE, L"MLAA", L"Morphological Anti-Aliasing", true, false),
-
 	new BooleanOption(L"hide_freeplay", PATCHES_SECTION, CONFIG_FILE, L"Hide \"FREE PLAY\"/\"CREDIT(S)\"", L"Hide the \"FREE PLAY\"/\"CREDIT(S)\" text.", false, false),
 	new BooleanOption(L"freeplay", PATCHES_SECTION, CONFIG_FILE, L"FREE PLAY", L"Show \"FREE PLAY\" instead of \"CREDIT(S)\".", true, false),
 	new BooleanOption(L"pdloadertext", PATCHES_SECTION, CONFIG_FILE, L"PD Loader FREE PLAY", L"Show the version of PD Loader instead of \"FREE PLAY\".", true, false),
-	new BooleanOption(L"hide_volume", PATCHES_SECTION, CONFIG_FILE, L"Hide Volume Buttons", L"Hide the volume and SE control buttons.", false, false),
+	new OptionMetaSpacer(8),
+
 	new BooleanOption(L"no_movies", PATCHES_SECTION, CONFIG_FILE, L"Disable Movies", L"Disable movies (enable this if the game hangs when loading certain PVs).", false, false),
 	new BooleanOption(L"mp4_movies", PATCHES_SECTION, CONFIG_FILE, L"Custom MP4 Adv Movies", L"Enable MP4 (instead of WMV) advertise/attract movies.", false, false),
+	new OptionMetaSpacer(8),
+
+	new BooleanOption(L"cursor", PATCHES_SECTION, CONFIG_FILE, L"Cursor", L"Enable or disable the mouse cursor.", true, false),
+	new BooleanOption(L"hide_volume", PATCHES_SECTION, CONFIG_FILE, L"Hide Volume Buttons", L"Hide the volume and SE control buttons.", false, false),
 	new BooleanOption(L"no_pv_ui", PATCHES_SECTION, CONFIG_FILE, L"Disable PV UI", L"Remove the photo controls during PV playback.", false, false),
-	new BooleanOption(L"no_lyrics", PATCHES_SECTION, CONFIG_FILE, L"Disable Lyrics", L"Disable showing lyrics.", false, false),
 	new BooleanOption(L"hide_pv_watermark", PATCHES_SECTION, CONFIG_FILE, L"Hide PV Watermark", L"Hide the watermark that's usually shown in PV viewing mode.", false, false),
+	new BooleanOption(L"no_lyrics", PATCHES_SECTION, CONFIG_FILE, L"Disable Lyrics", L"Disable showing lyrics.", false, false),
 	new BooleanOption(L"no_error", PATCHES_SECTION, CONFIG_FILE, L"Disable Error Banner", L"Disable the error banner on the attract screen.", true, false),
-	new BooleanOption(L"hardware_slider", PATCHES_SECTION, CONFIG_FILE, L"Use Hardware Slider", L"Enable this if using a real arcade slider.\n(set the slider to port COM11)", false, false),
-
-	new NumericOption(L"Enhanced_Stage_Manager", GRAPHICS_SECTION, CONFIG_FILE, L"Number of stages:", L"Set the number of stages (0 = default).", 0, 0, INT_MAX),
-	new BooleanOption(L"Enhanced_Stage_Manager_Encore", PATCHES_SECTION, CONFIG_FILE, L"Encore", L"Enable encore stages.", true, false),
-
-	new BooleanOption(L"skip", LAUNCHER_SECTION, CONFIG_FILE, L"Skip Launcher", L"Forces the launcher to be skipped, you can also use the --launch parameter instead of this.", false, false),
-
 	new DropdownOption(L"status_icons", PATCHES_SECTION, CONFIG_FILE, L"Status Icons:", L"Set the state of card reader and network status icons.", 3, std::vector<LPCWSTR>({ L"Default", L"Hidden", L"Error", L"OK", L"Partial OK" })),
-	
-	new NumericOption(L"FPS.Limit", GRAPHICS_SECTION, CONFIG_FILE, L"FPS Limit:", L"Allows you to set a frame rate cap. Set to -1 to unlock the frame rate.", 60, -1, INT_MAX),
+	new OptionMetaSpacer(8),
+
+	new BooleanOption(L"Enhanced_Stage_Manager_Encore", PATCHES_SECTION, CONFIG_FILE, L"Encore Stages", L"Enable encore stages.", true, false),
+	new NumericOption(L"Enhanced_Stage_Manager", PATCHES_SECTION, CONFIG_FILE, L"Number of stages:", L"Set the number of stages (0 = default).", 0, 0, INT_MAX),
+	new OptionMetaSpacer(8),
+
+	new BooleanOption(L"hardware_slider", PATCHES_SECTION, CONFIG_FILE, L"Use Hardware Slider", L"Enable this if using a real arcade slider.\n(set the slider to port COM11)", false, false),
+	new OptionMetaSpacer(8),
+
+	new BooleanOption(L"TAA", GRAPHICS_SECTION, CONFIG_FILE, L"TAA", L"Temporal Anti-Aliasing", true, false),
+	new BooleanOption(L"MLAA", GRAPHICS_SECTION, CONFIG_FILE, L"MLAA", L"Morphological Anti-Aliasing", true, false),
+	new BooleanOption(L"borderless.popup", RESOLUTION_SECTION, CONFIG_FILE, L"Popup Borderless Mode", L"Makes borderless mode use a popup window.\nPerformance may increase and latency should decrease, but screenshots may not work as expected.", true, false),
 	new BooleanOption(L"FPS.Limit.LightMode", GRAPHICS_SECTION, CONFIG_FILE, L"Use Lightweight Limiter", L"Makes the FPS limiter use less CPU.\nMay have less consistent performance.", true, false),
+	new NumericOption(L"FPS.Limit", GRAPHICS_SECTION, CONFIG_FILE, L"FPS Limit:", L"Allows you to set a frame rate cap. Set to -1 to unlock the frame rate.", 60, -1, INT_MAX),
+	new NumericOption(L"frm.motion.rate", GRAPHICS_SECTION, CONFIG_FILE, L"FRM Motion Rate:", L"Sets the motion rate (fps) for the Frame Rate Manager component.\nLarger values should be smoother, but more CPU intensive and possibly buggier.", 300, 1, INT_MAX),
+	new OptionMetaSpacer(8),
+
+	new BooleanOption(L"rumble", KEYCONFIG_SECTION, KEYCONFIG_FILE, L"XInput Rumble", L"Enables rumble during chainslides.", true, true),
+	new NumericOption(L"xinput_preferred", KEYCONFIG_SECTION, KEYCONFIG_FILE, L"XInput Controller Num:", L"Sets the preferred XInput controller.\nIf unavailable, the next connected controller is used.", 0, 0, 3),
+	new OptionMetaSpacer(8),
 
 	new StringOption(L"command_line", LAUNCHER_SECTION, CONFIG_FILE, L"Command Line:", L"Allows setting command line parameters for the game when using the launcher.\nDisabling the launcher will bypass this.", L"", false),
 };
@@ -180,15 +194,18 @@ ConfigOptionBase* playerdataArray[] = {
 	new StringOption(L"level_name", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Level Name:", L"Level (plate) name shown in game.", L"忘れないでね私の声を", true),
 
 	new NumericOption(L"level_plate_id", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Level Plate:", L"Sets the level background image (plate).", 0, 0, INT_MAX),
+	new NumericOption(L"level_plate_effect", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Level Plate Effect:", L"Sets the effect on the level background image (plate).", -1, -1, 2),
 	new NumericOption(L"skin_equip ", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Skin:", L"Sets the gameplay UI skin.", 0, 0, INT_MAX),
 
 	new NumericOption(L"btn_se_equip", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Button Sound:", L"Sets the sound effect for buttons.\n-1 = song default", -1, -1, INT_MAX),
 	new NumericOption(L"slide_se_equip", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Slide Sound:", L"Sets the sound effect for slides.\n-1 = song default", -1, -1, INT_MAX),
 	new NumericOption(L"chainslide_se_equip", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Chainslide Sound:", L"Sets the sound effect for chain slides.\n-1 = song default", -1, -1, INT_MAX),
+	new NumericOption(L"slidertouch_se_equip", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Slider Touch Sound:", L"Sets the sound effect for touching the slider with no note.\n-1 = song default", -1, -1, INT_MAX),
 	new BooleanOption(L"act_toggle", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Button SE", L"Enables button/slider sounds.", true, true),
 
 	new BooleanOption(L"border_great", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Clear Border (Great)", L"Shows the clear border for a great rating on the progress bar.", true, true),
 	new BooleanOption(L"border_excellent", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Clear Border (Excellent)", L"Shows the clear border for an excellent rating on the progress bar.", true, true),
+	new BooleanOption(L"border_rival", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Clear Border (Rival)", L"Shows the clear border for beating your rival on the progress bar.", false, true),
 
 	new BooleanOption(L"use_card", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Use Card", L"Enables IC card. This allows module selection.", false, true),
 	new BooleanOption(L"module_card_workaround", PLAYERDATA_SECTION, PLAYERDATA_FILE, L"Module Selection Workaround", L"Allows module selection without card and tries to improve menu performance.\n(BETA)", true, true),
@@ -219,6 +236,8 @@ ConfigOptionBase* componentsArray[] = {
 	new BooleanOption(L"debug_component", COMPONENTS_SECTION, COMPONENTS_FILE, L"Debug Component", L"Allows for changing game state (F4-F8 keys), using dev GUI and tests, and speeding up 2d animations/menus (hold SHIFT+TAB).", false, true),
 
 	new BooleanOption(L"target_inspector", COMPONENTS_SECTION, COMPONENTS_FILE, L"Target Inspector", L"Enables hold transfers.", false, true),
+
+	new BooleanOption(L"score_saver", COMPONENTS_SECTION, COMPONENTS_FILE, L"Score Saver", L"Saves high scores to plugins/scores.ini.", false, true),
 };
 
 bool IsLineInFile(LPCSTR searchLine, LPCWSTR fileName)
@@ -234,7 +253,7 @@ bool IsLineInFile(LPCSTR searchLine, LPCWSTR fileName)
 
 	// check for BOM
 	std::getline(fileStream, line);
-	if (line.size() >= 3 & line.rfind("\xEF\xBB\xBF", 0) == 0)
+	if (line.size() >= 3 && line.rfind("\xEF\xBB\xBF", 0) == 0)
 		fileStream.seekg(3);
 	else
 		fileStream.seekg(0);
@@ -270,7 +289,7 @@ void PrependFile(LPCSTR newStr, LPCWSTR fileName)
 	// check for BOM
 	std::string BOMcheckLine;
 	std::getline(fileStream, BOMcheckLine);
-	if (BOMcheckLine.size() >= 3 & BOMcheckLine.rfind("\xEF\xBB\xBF", 0) == 0)
+	if (BOMcheckLine.size() >= 3 && BOMcheckLine.rfind("\xEF\xBB\xBF", 0) == 0)
 		fileStream.seekg(3);
 	else
 		fileStream.seekg(0);

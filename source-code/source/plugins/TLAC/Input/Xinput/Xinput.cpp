@@ -4,6 +4,7 @@
 #include "../../FileSystem/ConfigFile.h"
 #include "../../framework.h"
 #include "../../Components/GameTargets/TargetInspector.h"
+#include "../../Components/Input/TouchSliderEmulator.h"
 
 namespace TLAC::Input
 {
@@ -14,6 +15,7 @@ namespace TLAC::Input
 		TLAC::FileSystem::ConfigFile config(TLAC::framework::GetModuleDirectory(), "keyconfig.ini");
 		config.OpenRead();
 		xinput_num = config.GetIntegerValue("xinput_preferred");
+		rumble = config.GetBooleanValue("rumble");
 	}
 
 	Xinput* Xinput::GetInstance()
@@ -226,14 +228,13 @@ namespace TLAC::Input
 					SetTapStates(i, elapsed);
 				}
 
-				if (TLAC::Components::TargetInspector::ShouldVibrate)
+				if (rumble && TLAC::Components::TouchSliderEmulator::LatestInstance->isSliderTouched() && TLAC::Components::TargetInspector::ShouldVibrate)
 				{
 					XINPUT_VIBRATION vibration;
 					ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 					vibration.wLeftMotorSpeed = 8000; // use any value between 0-65535 here
 					vibration.wRightMotorSpeed = 4000; // use any value between 0-65535 here
-					//XInputSetState(xc_pref, &vibration);
-					//printf("1");
+					XInputSetState(xc_pref, &vibration);
 				}
 				else
 				{
@@ -241,7 +242,7 @@ namespace TLAC::Input
 					ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 					vibration.wLeftMotorSpeed = 0; // use any value between 0-65535 here
 					vibration.wRightMotorSpeed = 0; // use any value between 0-65535 here
-					//XInputSetState(xc_pref, &vibration);
+					XInputSetState(xc_pref, &vibration);
 					//printf("0");
 				}
 
