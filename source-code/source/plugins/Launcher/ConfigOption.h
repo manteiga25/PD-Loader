@@ -1088,7 +1088,7 @@ public:
 		if (_configopts.size() > 0)
 		{
 			ToolTip^ paneltooltip = gcnew ToolTip();
-			Panel^ configPanel = MakePanel((Col2Left + Col2Width + 64), 250, _configopts, paneltooltip, hasChanged);
+			Panel^ configPanel = MakePanel((Col2Left + Col2Width + 76), 250, _configopts, paneltooltip, hasChanged);
 			configPanel->Scale(ScaleWidth, ScaleHeight);
 			PluginConfigHandler^ confighandler = gcnew PluginConfigHandler(configPanel, gcnew String(_friendlyName) + " Options");
 			button->Click += gcnew System::EventHandler(confighandler, &PluginConfigHandler::OpenForm);
@@ -1143,11 +1143,12 @@ Panel^ MakePanel(int width, int height, std::vector<ConfigOptionBase*> &cfg, Too
 		{
 			OptionMetaGroupStart* groupData = (OptionMetaGroupStart*)(cfg[i]);
 			GroupBox^ groupbox = gcnew GroupBox();
-			groupbox->Width = width - (ScaleWidth * 8);
-			groupbox->Height = ScaleHeight * groupData->_height;
+			groupbox->Width = width - (ScaleWidth * 28);
+			groupbox->Height = ScaleHeight * (groupData->_height);
 			groupbox->Left = ScaleWidth * 4;
 			groupbox->Top = ScaleHeight * curY;
 			groupbox->Text = gcnew String(groupData->_friendlyName);
+			groupbox->ForeColor = Drawing::Color::White;
 
 			// find the end of this group by simple iteration keeping track of indent level
 			int level = 1;
@@ -1163,9 +1164,9 @@ Panel^ MakePanel(int width, int height, std::vector<ConfigOptionBase*> &cfg, Too
 					break;
 			}
 
-			Panel^ groupPanel = MakePanel(groupbox->Width - (ScaleWidth * 8), groupbox->Height - (ScaleHeight * 10), std::vector<ConfigOptionBase*>(&(cfg[i + 1]), &(cfg[endidx])), tooltip, hasChanged);
-			groupPanel->Left = ScaleWidth * 12;
-			groupPanel->Top = ScaleHeight * (curY + 8);
+			Panel^ groupPanel = MakePanel(groupbox->Width - (ScaleWidth * 12), groupbox->Height - (ScaleHeight * 20), std::vector<ConfigOptionBase*>(&(cfg[i + 1]), &(cfg[endidx])), tooltip, hasChanged);
+			groupPanel->Left = ScaleWidth * 2;
+			groupPanel->Top = ScaleHeight * 14;
 
 			groupbox->Controls->Add(groupPanel);
 			outpanel->Controls->Add(groupbox);
